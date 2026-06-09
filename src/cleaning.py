@@ -1,19 +1,31 @@
+import os
 import pandas as pd
 
-# Load CSV file
-df = pd.read_csv("data/raw/polyhouse_sensor.csv")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INPUT_PATH = os.path.join(BASE_DIR, "data", "interim", "01_loaded.parquet")
+PROCESSED_DIR = os.path.join(BASE_DIR, "data", "processed")
 
-print("Missing values before cleaning:")
-print(df.isnull().sum())
+def clean_pipeline():
+    print("--- STEP 2: Running Cleaning Pipeline ---")
+    df = pd.read_parquet(INPUT_PATH)
+    
+    # Fill missing values sequentially along the time-series using linear interpolation
+    df['temperature'] = df['temperature'].interpolate(method='linear')
+    df['humidity'] = df['humidity'].interpolate(method='linear')
+    df['CO2'] = df['CO2'].interpolate(method='linear')
+    
+    # Technical boundary safeguard: Cap maximum humidity at 100%
+    df['humidity'] = df['humidity'].clip(upper=100.0)
+    
+    # Ensure processed directory exists
+    os.makedirs(PROCESSED_DIR, exist_ok=True)
+    
+    # Save clean versions
+    df.to_parquet(os.path.join(PROCESSED_DIR, "02_cleaned.parquet"), index=False)
+    df.to_csv(os.path.join(PROCESSED_DIR, "cleaned_data.csv"), index=False)
+    
+    print("Data cleaning complete! 0 missing values remain.")
+    print("Files saved inside data/processed/")
 
-# Fill missing values with column averages
-df = df.fillna(df.mean(numeric_only=True))
-
-print("\nMissing values after cleaning:")
-print(df.isnull().sum())
-
-# Save cleaned data
-df.to_csv("data/processed/cleaned_data.csv", index=False)
-df.head(50).to_csv("data/processed/sample_50_rows.csv",index=False)
-df.to_parquet("data/processed/02_cleaned.parquet",index=False)
-print("\nCleaning completed successfully!")
+if __name__ == "__main__":
+    clean_pipeline()

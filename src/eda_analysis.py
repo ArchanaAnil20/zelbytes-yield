@@ -1,52 +1,57 @@
 import os
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
-from pathlib import Path
+import seaborn as sns
 
-# 1. Setup exact structural paths based on dashboard requirements
-DATA_PATH = Path("data/processed/02_cleaned.parquet")
-FIGURES_DIR = Path("reports/figures")
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+INPUT_PATH = os.path.join(BASE_DIR, "data", "processed", "02_cleaned.parquet")
+FIGURES_DIR = os.path.join(BASE_DIR, "reports", "figures")
 
-# Create directories automatically if they don't exist
-os.makedirs(FIGURES_DIR, exist_ok=True)
+def generate_eda_reports():
+    print("--- STEP 3: Generating Visualizations ---")
+    df = pd.read_parquet(INPUT_PATH)
+    os.makedirs(FIGURES_DIR, exist_ok=True)
+    
+    # 1. NEW: Temperature vs Yield Scatter Plot
+    plt.figure(figsize=(8, 5))
+    sns.scatterplot(data=df, x='temperature', y='yield', color='crimson', alpha=0.7)
+    plt.title("Mushroom Yield vs Temperature (°C)")
+    plt.xlabel("Temperature (°C)")
+    plt.ylabel("Yield")
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGURES_DIR, "temp_vs_yield.png"))
+    plt.close()
+    print("Generated: temp_vs_yield.png")
+    
+    # 2. CO2 vs Yield Scatter Plot
+    plt.figure(figsize=(8, 5))
+    sns.scatterplot(data=df, x='CO2', y='yield', color='green', alpha=0.7)
+    plt.title("Mushroom Yield vs CO2 Concentrations")
+    plt.xlabel("CO2 (ppm)")
+    plt.ylabel("Yield")
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGURES_DIR, "co2_vs_yield.png"))
+    plt.close()
+    
+    # 3. Humidity vs Yield Scatter Plot
+    plt.figure(figsize=(8, 5))
+    sns.scatterplot(data=df, x='humidity', y='yield', color='blue', alpha=0.7)
+    plt.title("Mushroom Yield vs Relative Humidity")
+    plt.xlabel("Humidity (%)")
+    plt.ylabel("Yield")
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGURES_DIR, "humidity_vs_yield.png"))
+    plt.close()
 
-print("🎨 Loading data and preparing plots...")
-df = pd.read_parquet(DATA_PATH)
+    # 4. Correlation Matrix Heatmap
+    plt.figure(figsize=(6, 5))
+    sns.heatmap(df.corr(numeric_only=True), annot=True, cmap="coolwarm", fmt=".2f")
+    plt.title("Polyhouse Features Correlation Matrix")
+    plt.tight_layout()
+    plt.savefig(os.path.join(FIGURES_DIR, "correlation_heatmap.png"))
+    plt.close()
+    
+    print(f"\nAll evaluation plots successfully saved to: {FIGURES_DIR}")
 
-# Standardize columns to lowercase to prevent KeyErrors
-df.columns = [col.lower() for col in df.columns]
-
-# --- Save Plots Directly into Root Folder ---
-
-# 1. Temperature vs Yield Scatter Plot
-plt.figure(figsize=(5, 4))
-plt.scatter(df['temperature'], df['yield'], color='crimson')
-plt.xlabel("Temperature (°C)")
-plt.ylabel("Yield (kg)")
-plt.title("Temperature vs Yield")
-plt.tight_layout()
-plt.savefig(FIGURES_DIR / "co2_vs_yield.png") # Match required names
-plt.close()
-
-# 2. Humidity vs Yield Scatter Plot
-plt.figure(figsize=(5, 4))
-plt.scatter(df['humidity'], df['yield'], color='teal')
-plt.xlabel("Humidity (%)")
-plt.ylabel("Yield (kg)")
-plt.title("Humidity vs Yield")
-plt.tight_layout()
-plt.savefig(FIGURES_DIR / "humidity_vs_yield.png")
-plt.close()
-
-# 3. Correlation Matrix Heatmap Plot (Basic implementation)
-plt.figure(figsize=(5, 4))
-corr = df[['temperature', 'humidity', 'co2', 'yield']].corr()
-plt.imshow(corr, cmap='coolwarm', interpolation='none')
-plt.colorbar()
-plt.title("Correlation Matrix")
-plt.tight_layout()
-plt.savefig(FIGURES_DIR / "correlation_heatmap.png")
-plt.close()
-
-print("✅ EDA completed successfully! Images saved to root reports/figures/")
+if __name__ == "__main__":
+    generate_eda_reports()
