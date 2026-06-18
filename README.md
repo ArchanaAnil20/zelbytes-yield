@@ -37,3 +37,20 @@ To replicate this workspace and run the project, follow these setup steps:
   - *Test Window:* 2026-06-04 16:00:00 $\rightarrow$ 2026-06-05 11:00:00
 - **Data Leakage Mitigation:** Scaler statistics (`MinMaxScaler`) calculated strictly on training partitions; test feature columns transformed using train statistics only.
 -
+# Inference
+
+Run the app:
+
+```bash
+streamlit run app.py
+```
+
+Example Input
+
+- Temperature = 22°C
+- Humidity = 88%
+- CO₂ = 900 ppm
+
+Example Output
+
+Estimated daily yield: 11.50 kg
