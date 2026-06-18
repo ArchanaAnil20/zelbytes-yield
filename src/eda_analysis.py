@@ -1,3 +1,4 @@
+
 import os
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -8,10 +9,12 @@ import seaborn as sns
 # -----------------------------
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-DATA_PATH = os.path.join(BASE_DIR, "data", "interim", "02_cleaned.parquet")
+DATA_PATH = os.path.join(BASE_DIR, "data", "interim", "01_loaded.parquet")
 FIG_DIR = os.path.join(BASE_DIR, "reports", "figures")
 
+# Create figures folder if it doesn't exist
 os.makedirs(FIG_DIR, exist_ok=True)
+
 
 # -----------------------------
 # Load data
@@ -30,12 +33,23 @@ def load_data():
 def correlation_heatmap(df):
     plt.figure(figsize=(8, 6))
 
+    # Calculate correlation matrix
     corr = df[["temperature_c", "humidity_pct", "co2_ppm", "yield_kg"]].corr()
 
-    sns.heatmap(corr, annot=True, cmap="coolwarm", fmt=".2f")
+    # Plot heatmap
+    sns.heatmap(
+        corr,
+        annot=True,
+        cmap="coolwarm",
+        fmt=".2f",
+        vmin=-1,
+        vmax=1,
+        center=0
+    )
 
     plt.title("Correlation Heatmap")
 
+    # Save figure
     path = os.path.join(FIG_DIR, "correlation_heatmap.png")
     plt.savefig(path)
     plt.close()
@@ -51,13 +65,22 @@ def scatter_plots(df):
     features = ["temperature_c", "humidity_pct", "co2_ppm"]
 
     for col in features:
+
         plt.figure(figsize=(6, 4))
 
-        sns.scatterplot(data=df, x=col, y="yield_kg")
+        sns.scatterplot(
+            data=df,
+            x=col,
+            y="yield_kg"
+        )
 
         plt.title(f"Yield vs {col}")
 
-        path = os.path.join(FIG_DIR, f"{col}_vs_yield.png")
+        path = os.path.join(
+            FIG_DIR,
+            f"{col}_vs_yield.png"
+        )
+
         plt.savefig(path)
         plt.close()
 
@@ -78,5 +101,8 @@ def run_eda():
     print("\nEDA completed successfully!")
 
 
+# -----------------------------
+# Run Script
+# -----------------------------
 if __name__ == "__main__":
     run_eda()
