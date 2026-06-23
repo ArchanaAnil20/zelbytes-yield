@@ -54,3 +54,17 @@ Example Input
 Example Output
 
 Estimated daily yield: 11.50 kg
+## Live Demo
+
+https://zelbytes-yield-yer2yrtozdt2dwauiieuukc.streamlit.app
+
+## Main File
+
+app.py
+
+## Repository Structure
+
+- app.py → Streamlit application
+- src/predict.py → prediction logic
+- tests/test_predict.py → unit tests
+- requirements.txt → dependencies
