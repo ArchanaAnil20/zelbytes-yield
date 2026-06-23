@@ -1,7 +1,9 @@
 import streamlit as st
 import numpy as np
 import pandas as pd
+
 from src.predict import predict_yield
+from src.logging_utils import log_prediction
 
 # --------------------------------
 # Page configuration
@@ -68,6 +70,9 @@ if st.button("Predict Yield"):
         with st.spinner("Predicting yield..."):
             kg = predict_yield(temp, humid, co2)
 
+            # Log prediction
+            log_prediction(temp, humid, co2, kg)
+
         st.metric(
             label="Estimated Daily Yield",
             value=f"{kg:.2f} kg"
@@ -113,3 +118,13 @@ with st.expander("Model Information"):
 - **Test MAE:** 1.2 kg/day
 - **Training data:** Polyhouse sensors Jan–Dec 2024
 """)
+
+# --------------------------------
+# Recent prediction logs
+# --------------------------------
+with st.expander("Recent Prediction Logs"):
+    try:
+        logs_df = pd.read_csv("logs/predictions.csv")
+        st.dataframe(logs_df.tail(10))
+    except:
+        st.info("No prediction logs available yet.")
