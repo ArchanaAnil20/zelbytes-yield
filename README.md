@@ -68,3 +68,5 @@ app.py
 - src/predict.py → prediction logic
 - tests/test_predict.py → unit tests
 - requirements.txt → dependencies
+## Live Demo
+https://zelbytes-yield-yer2yrtozdt2dwauieuukc.streamlit.app/
